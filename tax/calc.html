@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja" ng-app>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>税金計算表</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style type="text/css">
+    body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+  </style>
+  <!--[if lt IE 9]>
+  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <script>window.html5 || document.write('<script src="js/vendor/html5shiv.js"><\/script>')</script>
+  <![endif]-->
+</head>
+<body>
+  <!--[if lt IE 7]>
+  <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div class="navbar navbar-inverse navbar-fixed-top"><div class="navbar-inner"><div class="container">
+    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </a>
+    <a class="brand" href="#">税額計算表</a>
+    <div class="nav-collapse collapse">
+      <ul class="nav">
+        <li class="active"><a href="#">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div></div></div>
+
+  <div class="container" ng-controller="TaxCtrl">
+
+  <!-- Main hero unit for a primary marketing message or call to action -->
+  <div class="hero-unit">
+    <h1>calc the TAX amount</h1>
+    <p>このページは、大学生がアルバイトで100万以上を稼いだ時、学生とその親にどう課税されるのかシミュレーションするために作成されました。
+        結果が合っているという保証はありません。おおよその予想を立てるのに利用してください。なお、このコンテンツは2012/11/30のものになります。
+    </p>
+    <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+  </div>
+
+  <div class="row">
+    <div class="span5">
+      <h2>はじめに</h2>
+      <p>学生のバイトは103万超えたらヤバイとか、130万超えたら保険料が、などとよく聞きますが、実際どれぐらいヤバイのか正確に記述しているサイトはあまり見当たりません。そこで、自分の条件を入力することで、控除や親の課税の増分、健康保険料までを計算できるようなシステムを作りました。</p>
+    </div>
+
+    <div class="span6 offset1">
+      <div class="row">
+        <h2>よく言われる税金の壁</h2>
+        <div class="span3">
+          <h3>103万の壁</h3>
+          <p>103万(給与所得控除65万＋基礎控除38万)を超えると、親の扶養親族を外れます。これにより、親の扶養控除がなくなり、親に以下の金額が増税されます。</p>
+        </div>
+        <div class="span3">
+          <h3>130万の壁</h3>
+          <p>130万を超えると健康保険の被扶養者を外れるため、自分で保険に入らなければならなくなります。
+            また、130万を超えると勤労学生控除が使えなくなり、学生本人にも税金がかかります。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span3">
+      <form  class="form-horizontal">
+        <fieldset>
+          <legend>入力欄</legend>
+          <p>以下の項目のわかるところに数字を入力してください。</p>
+          <label><abbr title="税引前の金額">給与収入</abbr></label>
+          <input type="number" ng-model="tax.yourFullSalaryIncome" placeholder="あなたの給与収入(円)" step="10000" min="0">
+          <!--
+          <label><abbr title="給与所得控除後の金額. 自動計算される. 修正用">給与所得(分かれば)</abbr></label>
+          <input type="number" ng-model="tax.yourSalaryIncome" placeholder="あなたの給与所得(円)" step="10000">
+          <label>その他/雑所得（FXなど）</label>
+          <input type="number" ng-model="tax.yourOtherIncome" placeholder="その他/雑所得(円)" step="10000">
+          -->
+          <label>親の課税される所得</label><input type="number" ng-model="tax.yourParentTaxableIncome" placeholder="親の課税される所得(円)" step="10000">
+          <label class="checkbox"><input type="checkbox" ng-model="tax.under22">
+            <abbr title="親の特定扶養親族">12/31の時点で19歳～22歳</abbr></label>
+          <label class="checkbox"><input type="checkbox" ng-model="tax.under20">
+            <abbr title="未成年は住民税非課税">(翌年)1/1の時点で未成年</abbr></label>
+
+          <!--
+          <span class="help-block">分かれば入力してください.</span>
+          <label>親の家族手当</label>
+          <input type="number" ng-model="tax.yourParentAllowance" placeholder="親の家族手当(円)" step="10000" value="50000">
+          <label class="checkbox"><input type="checkbox">103万を超えると家族の支給が止まる</label>
+          <label class="checkbox"><input type="checkbox"><abbr title="親が自営業の場合など">国民健康保険に加入している</abbr></label>
+          -->
+          <button type="submit" class="btn">Submit</button>
+        </fieldset>
+      </form>
+    </div>
+
+    <div class="span3">
+      <h3>各種情報</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><abbr title="税引前の金額">給与収入</abbr></td>
+            <td>{{tax.yourFullSalaryIncome}}</td>
+          </tr>
+          <tr>
+            <td><abbr title="給与所得控除後の金額">給与所得</abbr></td>
+            <td>{{tax.yourSalaryIncome}}</td>
+          </tr>
+          <tr>
+            <td>雑収入</td>
+            <td>{{tax.yourOtherIncome}}</td>
+          </tr>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{tax.yourIncome}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>勤労学生控除</td>
+            <td><abbr title="特定の学校の学生で、合計所得金額65万円以下かつ勤労に基づく所得以外の所得が10万円以下">{{tax.yourStudentDeduction}}</abbr></td>
+          </tr>
+          <tr>
+            <td>親が使える控除</td>
+            <td>特定扶養親族 {{tax.under22}}</td>
+          </tr>
+          <tr>
+            <td>親の所得税税率</td>
+            <td>{{tax.yourParentIncomeTaxRate}}%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+
+    <div class="span6">
+      <h3>グラフ</h3>
+      <div id="chart_div"></div>
+      <p><a class="btn" href="#">詳細 &raquo;</a></p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span3">
+      <h3>所得税</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{tax.yourIncome}}</td>
+          </tr>
+          <tr>
+            <td>控除の金額</td>
+            <td><abbr title="基礎控除38万+勤労学生控除27万">{{tax.yourDeduction}}</abbr></td>
+          </tr>
+          <tr>
+            <td>課税される所得金額</td>
+            <td>{{tax.yourTaxableIncome}}</td>
+          </tr>
+          <tr>
+            <td>所得税 税率</td>
+            <td>{{tax.yourIncomeTaxRate}}%</td>
+          </tr>
+          <tr>
+            <td>所得税 課税額</td>
+            <td>{{tax.yourIncomeTax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+
+    <div class="span3">
+      <h3>住民税</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{tax.yourIncome}}</td>
+          </tr>
+          <tr>
+            <td>課税対象</td>
+            <td><abbr title="所得割・均等割(合計所得金額が35万以下,または未成年なら課税対象外)">{{tax.yourResidentTaxableNeed}}</abbr></td>
+          </tr>
+          <tr>
+            <td>控除の金額</td>
+            <td><abbr title="基礎控除33万+勤労学生控除26万">{{tax.yourResidentTaxableDeduction}}</abbr></td>
+          </tr>
+          <tr>
+            <td>課税される所得金額</td>
+            <td>{{tax.yourResidentTaxableIncome}}</td>
+          </tr>
+          <tr>
+            <td>均等割 課税額</td>
+            <td>{{tax.yourInhabitantTaxOnPerCapitaBasis}}</td>
+          </tr>
+          <tr>
+            <td>住民税 税率</td>
+            <td><abbr title="市町村民税(23区は特別区民税)6% + 都道府県民税4%">10%</abbr></td>
+          </tr>
+          <tr>
+            <td>住民税 課税額</td>
+            <td><abbr title="均等割+所得割">{{tax.yourInhabitantTax}}</abbr></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>翌年に課税されます</p>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+
+    <div class="span3">
+      <h3>保険料</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>給与収入(税引前金額)</td>
+            <td>{{yourSalary}}</td>
+          </tr>
+          <tr>
+            <td>給与所得合計金額</td>
+            <td>{{yourSalary-650000}}</td>
+          </tr>
+          <tr>
+            <td>課税される所得金額</td>
+            <td>{{yourSalary-650000}}</td>
+          </tr>
+          <tr>
+            <td>所得税額</td>
+            <td>{{yourSalary-650000}}</td>
+          </tr>
+          <tr>
+            <td>住民税</td>
+            <td>{{yourSalary-650000}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>保険料は地域によって異なるため、目安にしかなりません。</p>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+
+    <div class="span3">
+      <h3>親への課税額</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額(円)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>(親)課税される所得金額</td>
+            <td>{{tax.yourParentTaxableIncome}}</td>
+          </tr>
+          <tr>
+            <td>(親)所得税税率</td>
+            <td>{{tax.yourParentIncomeTaxRate}}</td>
+          </tr>
+          <tr>
+            <td>(親)所得税控除の減少額</td>
+            <td>{{tax.yourParentIncomeTaxDeduction}}</td>
+          </tr>
+          <tr>
+            <td>(親)住民税控除の減少額</td>
+            <td>{{tax.yourParentInhabitantTaxDeduction}}</td>
+          </tr>
+          <tr>
+            <td>(親)増課税額</td>
+            <td>{{tax.yourParentIncrementTax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span6">
+    <h2>給与所得控除</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>給与年収</th>
+            <th>控除額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>～180万円</td>
+            <td>65万円 ～収入金額×40％</td>
+          </tr>
+          <tr>
+            <td>180万～360万円</td>
+            <td>収入金額×30％ + 18万円</td>
+          </tr>
+          <tr>
+            <td>360万～660万円</td>
+            <td>収入金額×20％ + 54万円</td>
+          </tr>
+          <tr>
+            <td>660万～1000万円</td>
+            <td>収入金額×10％ + 120万円</td>
+          </tr>
+          <tr>
+            <td>1000万～</td>
+            <td>収入金額× 5％ + 170万円</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+
+    <div class="span6">
+    <h2>所得控除</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>控除名</th>
+            <th>所得税控除額</th>
+            <th>住民税控除額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>基礎控除</td>
+            <td>38万円</td>
+            <td>33万円</td>
+          </tr>
+          <tr>
+            <td>勤労学生控除</td>
+            <td>27万円</td>
+            <td>26万円</td>
+          </tr>
+          <tr>
+            <td>扶養控除(特定親族)</td>
+            <td>63万円</td>
+            <td>45万円</td>
+          </tr>
+          <tr>
+            <td>扶養控除</td>
+            <td>38万円</td>
+            <td>33万円</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="#">詳細 &raquo;</a></p>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="span3">
+      <p>・ 収入とは
+自営業の場合には売上金額、サラリーマンの場合には源泉徴収額（所得税　等）や社会保険料
+等を差し引く前の額。手取り額ではなく、総支給額から交通費を差し引いた額です。
+（注：交通費は収入には含まないため）
+
+・ 所得とは
+収入から必要経費を差し引いた額です。サラリーマンの場合には、必要経費を特定することが
+むずかしいため、「給与所得控除」として収入に応じた必要経費が定められており、収入金額に
+応じた控除額を差し引いて所得額が算定されます。</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <footer>
+  <p>&copy; bungoume 2012</p>
+  </footer>
+
+  </div> <!-- /container -->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
+  <script src="js/calcTax2.js"></script>
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <script src="js/vendor/angular.js"></script>
+  <script src="js/vendor/underscore.min.js"></script>
+  <script src="js/angularScript.js"></script>
+  <script src="js/main.js"></script>
+  
+  <script src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var data = google.visualization.arrayToDataTable([
+        ['収入', '税額', '実質手取'],
+        ['2004',  1000,      400],
+        ['2005',  1170,      460],
+        ['2006',  660,       1120],
+        ['2007',  1030,      540]
+      ]);
+
+      var options = {
+        title: '収入-手取グラフ',
+        hAxis: {title: 'あなたの収入',  titleTextStyle: {color: 'red'}},
+        backgroundColor: 'none'
+      };
+
+      var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+<!--
+  <script>
+  var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+  </script>
+-->
+</body>
+</html>

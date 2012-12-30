@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja" ng-app>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>税金計算表</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style type="text/css">
+    body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+  </style>
+  <!--[if lt IE 9]>
+  <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <script>window.html5 || document.write('<script src="js/vendor/html5shiv.js"><\/script>')</script>
+  <![endif]-->
+</head>
+<body>
+  <!--[if lt IE 7]>
+  <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div class="navbar navbar-inverse navbar-fixed-top"><div class="navbar-inner"><div class="container">
+    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </a>
+    <a class="brand" href="#">税額計算表</a>
+    <div class="nav-collapse collapse">
+      <ul class="nav">
+        <li class="active"><a href="index.html">Home</a></li>
+        <li><a href="detail.html">Calc</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div></div></div>
+
+  <div class="container" ng-controller="TaxCtrl">
+
+  <!-- Main hero unit for a primary marketing message or call to action -->
+  <div class="hero-unit">
+    <h1>大学生 税金シミュレータ</h1>
+    <p>このページは、大学生がアルバイトで100万以上を稼いだ時、学生とその親にどう課税されるのかシミュレーションするために作成されました。
+        結果が合っているという保証はありません。おおよその予想を立てるのに利用してください。</p>
+    </p>
+    <p><a class="btn btn-primary btn-large" href="detail.html">実際に計算してみる &raquo;</a></p>
+  </div>
+
+  <div class="row">
+    <div class="span3">
+      <h2>はじめに</h2>
+      <p>学生のバイトは103万超えたらヤバイとか、130万超えたら保険料が、などとよく聞きますが、実際どれぐらいヤバイのか正確に記述しているサイトはあまり見当たりません。そこで、自分の条件を入力することで、控除や親の課税の増分、健康保険料までを計算できるようなシステムを作りました。</p>
+    </div>
+    <div class="span7">
+      <h2>よく言われる税金の壁</h2>
+      <div class="row">
+        <div class="span2">
+          <h3>103万の壁</h3>
+          <p>103万(給与所得控除65万＋基礎控除38万)を超えると、親の扶養親族を外れます。これにより、親の扶養控除がなくなり、親に以下の金額が増税されます。</p>
+        </div>
+        <div class="span3">
+          <h3>130万の壁</h3>
+          <p>年間130万以上の見込になると健康保険の被扶養者を外れるため、自分で保険に入らなければならなくなります。
+            また、130万を超えると勤労学生控除が使えなくなり、学生本人にも税金がかかります。</p>
+        </div>
+        <div class="span2">
+          <h3>(100万の壁)</h3>
+          <p>100万を超えると住民税が課税されます。しかし、他の壁と比べると課税額は少なく、手取が急激に少なくなるわけでもないので壁とはあまり言われていません。</p>
+        </div>
+      </div>
+    </div>
+    <div class="span2">
+      <h3>更新履歴</h3>
+      <dl>
+        <dt>2012/11/30</dt><dd>作成</dd>
+        <dt>2012/12/03</dt><dd>計算間違いを修正</dd>
+        <dt>2012/12/03</dt><dd>入力値に合わせてグラフが変動するよう変更</dd>
+      </dl>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="span12">
+    <h2>簡易計算機</h2>
+    <div class="row">
+    <div class="span3">
+      <h3>入力フォーム</h3>
+      <form  class="form-horizontal" id="calc">
+        <fieldset>
+          <p>収入100万～150万での、気になる税額がすぐに確認できます。
+          以下の項目を入力するだけでグラフが更新されます。</p>
+          <!--
+          <label><abbr title="税引前の金額">給与収入</abbr></label>
+          <input type="number" ng-model="tax.yourFullSalaryIncome" placeholder="あなたの給与収入(円)" step="10000" min="0">
+
+          <label><abbr title="給与所得控除後の金額. 自動計算される. 修正用">給与所得(分かれば)</abbr></label>
+          <input type="number" ng-model="tax.yourSalaryIncome" placeholder="あなたの給与所得(円)" step="10000">
+          <label>その他/雑所得（FXなど）</label>
+          <input type="number" ng-model="tax.yourOtherIncome" placeholder="その他/雑所得(円)" step="10000">
+          -->
+          <label>親の課税される所得</label><input type="number" class="input-medium" ng-model="tax.yourParentTaxableIncome" placeholder="親の課税される所得(円)" step="10000">
+          <label class="checkbox"><input type="checkbox" ng-model="tax.under22">
+            <abbr title="親の特定扶養親族">12/31の時点で19歳～22歳</abbr></label>
+          <label class="checkbox"><input type="checkbox" ng-model="tax.under20">
+            <abbr title="未成年は住民税非課税">(翌年)1/1の時点で未成年</abbr></label>
+
+          <!--
+          <span class="help-block">分かれば入力してください.</span>
+          <label>親の家族手当</label>
+          <input type="number" ng-model="tax.yourParentAllowance" placeholder="親の家族手当(円)" step="10000" value="50000">
+          <label class="checkbox"><input type="checkbox">103万を超えると家族の支給が止まる</label>
+          <label class="checkbox"><input type="checkbox"><abbr title="親が自営業の場合など">国民健康保険に加入している</abbr></label>
+          -->
+          <button type="submit" class="btn">Submit</button>
+        </fieldset>
+      </form>
+    </div>
+    <div class="span3">
+      <h3>各種情報</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>住民税 課税対象</td>
+            <td>{{!tax.under20}}</td>
+          </tr>
+          <tr>
+            <td>親が使える控除</td>
+            <td>特定扶養親族 {{tax.under22}}</td>
+          </tr>
+          <tr>
+            <td>親の所得税税率</td>
+            <td>{{tax.yourParentIncomeTaxRate}}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="span6">
+      <h3>グラフ</h3>
+      <div id="chart_div"></div>
+      <p><a class="btn" href="detail.html">詳細 &raquo;</a></p>
+    </div>
+    </div></div>
+  </div>
+
+
+  <hr>
+
+  <footer>
+  <p>&copy; pianokko 2012</p>
+  </footer>
+
+  </div> <!-- /container -->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
+
+  <script src="https://www.google.com/jsapi"></script>
+  <script src="js/calcTax2.js"></script>
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <script src="js/vendor/angular.js"></script>
+  <script src="js/vendor/underscore.min.js"></script>
+  <script src="js/angularScript.js"></script>
+  <script src="js/main.js"></script>
+  
+
+<!--
+  <script>
+  var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+  </script>
+-->
+</body>
+</html>
