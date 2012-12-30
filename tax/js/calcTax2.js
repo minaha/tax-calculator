@@ -1,33 +1,15 @@
 "use strict";
 
 var Tax = (function(){
+  //各種控除一覧表
   //http://www.city.hikone.shiga.jp/somubu/zeimu/shiminzei/juminzei_koujyo_mi.html
+  //
+  //総所得金額、総所得金額等、合計所得金額の違い
   //http://www.city.nasushiobara.lg.jp/faq/288/001451.html
-  function calcIncomeTax(taxableIncome){
-    //http://www.nta.go.jp/taxanswer/shotoku/2260.htm
-    var a = taxableIncome;
-    if(a<=1950000){
-      return {amount:a*5/100, rate:5};
-    }
-    if(a<=3300000){
-      return {amount:a*10/100-97500, rate:10};
-    }
-    if(a<=6950000){
-      return {amount:a*20/100-427500, rate:20};
-    }
-    if(a<=9000000){
-      return {amount:a*23/100-636000, rate:23};
-    }
-    if(a<=18000000){
-      return {amount:a*33/100-1536000, rate:30};
-    }
-    return   {amount:a*40/100-2796000, rate:40};
-  }
-
+  
+  //@input 給与収入 fullSalaryIncome
+  //@return 給与所得(給与所得控除後の金額) SalaryIncome
   function calcSalaryIncome(fullSalaryIncome){
-    //@input 給与収入の合計額
-    //@return 給与所得控除後の金額
-    //
     //http://www.nta.go.jp/taxanswer/shotoku/1410.htm
     //http://www.city.taito.lg.jp/index/kurashi/zeikin/zeikin/shurui/juminzei.html
 
@@ -58,10 +40,67 @@ var Tax = (function(){
       return a-2450000;
     }
   }
+  
+  //@return {amount: 所得税額
+  //         rate  : 所得税率(%)}
+  function calcIncomeTax(taxableIncome){
+    //http://www.nta.go.jp/taxanswer/shotoku/2260.htm
+    var a = taxableIncome;
+    if(a<=1950000){
+      return {amount:a*5/100, rate:5};
+    }
+    if(a<=3300000){
+      return {amount:a*10/100-97500, rate:10};
+    }
+    if(a<=6950000){
+      return {amount:a*20/100-427500, rate:20};
+    }
+    if(a<=9000000){
+      return {amount:a*23/100-636000, rate:23};
+    }
+    if(a<=18000000){
+      return {amount:a*33/100-1536000, rate:30};
+    }
+    return   {amount:a*40/100-2796000, rate:40};
+  }
 
+  function calcInhabitantTax(){
+    ResidentTaxableDeduction = StudentDeduction ? 590000:330000;
+    ResidentTaxableIncome = Math.max($scope.tax.yourIncome - $scope.tax.yourResidentTaxableDeduction, 0);
+    ResidentTaxableNeed = ($scope.tax.under20 && $scope.tax.yourIncome<=1250000 || $scope.tax.yourIncome <= 350000)? false:true;
+    InhabitantTaxOnPerCapitaBasis = $scope.tax.yourResidentTaxableNeed? 4000:0;
+    InhabitantTax = $scope.tax.yourInhabitantTaxOnPerCapitaBasis + ($scope.tax.yourResidentTaxableNeed? ($scope.tax.yourResidentTaxableIncome*0.1):0);   
+  }
+
+  function calcTaxableIncome(income, Deduction){
+    var deduction = Deduction.getSum("resident");
+    var tempTaxableIncome = Math.max(income - deduction,0);
+    var diffDeduction = Deduction.getSum("income") - deduction;
+
+    var tempDeduction=0;
+    //調整控除の計算
+    if(tempTaxableIncome<=2000000){
+      tempDeduction = Math.min(diffDeduction, tempTaxableIncome) * 5/100;
+    }else{
+      tempDeduction = (diffDeduction - (tempTaxableIncome-2000000)) * 5/100;
+      tempDeduction = Math.max(tempDeduction, 2500);
+    }
+
+    //todo: floorでいいの?
+    tempDeduction = Math.floor(tempDeduction);
+
+    return {
+      tempTaxableIncome: tempTaxableIncome,
+      taxableIncome: tempTaxableIncome - tempDeduction,
+      tempDeduction: tempDeduction;
+    }
+  }
+
+
+  //TODO: 多くの種類の控除に対応する
+  //@return 所得控除の金額
   function calcDeduction(income, studentDeduction){
     //http://www.nta.go.jp/taxanswer/shotoku/shoto320.htm
-    //
     var deduction  = 380000;
     if(studentDeduction){
       deduction += 270000;
@@ -69,6 +108,8 @@ var Tax = (function(){
     return deduction;
   }
 
+  //
+  //@return {boolean} 勤労学生控除が使えるか
   function isStudentDeduction(income, otherIncome){
     if(income<=650000 && otherIncome<=100000){
       return true;
@@ -76,20 +117,27 @@ var Tax = (function(){
     return false;
   }
 
+  //
+  //@return 課税される所得 
   function calcTaxableIncome(income,deduction){
     var ret = income-deduction;
     return ret>0 ? ret:0;
   }
 
+  //@return 合計所得金額
   function calcIncome(salaryIncome, otherIncome){
-
     return salaryIncome + otherIncome;
   }
 
+  //親の増加税額の計算
   function calcParentIncrementTax(income, parentInhabitantTaxDeduction, parentIncomeTaxDeduction, parentIncomeTaxRate){
     return income <=380000? 0:(parentInhabitantTaxDeduction*0.1 + parentIncomeTaxDeduction * parentIncomeTaxRate/100);
   }
 
+
+  //保険料計算
+  
+  //所得比例方式への変更にともなう経過措置
   function calcTransitionalInsuranceIncome(insuranceIncome, ResidentTaxableIncome, inhabitantTax){
     if(inhabitantTax==0){
       return insuranceIncome * 25/100;
@@ -106,20 +154,23 @@ var Tax = (function(){
     }else{
       return insuranceIncome - diff*25/100;
     }
-
   }
 
+  //医療分
   function calcMedicalInsurance(insuranceIncome, remitRateOfInsurancePerCapitaBasis){
     var ret = insuranceIncome * 628/10000 + 30000 * (100-remitRateOfInsurancePerCapitaBasis)/100;
     if(ret>510000)ret=510000;
     return Math.floor(ret);
   }
 
+  //後期高齢者支援金分保険料
   function calcSupportInsurance(insuranceIncome, remitRateOfInsurancePerCapitaBasis){
     var ret = insuranceIncome * 223/10000 + 10200 * (100-remitRateOfInsurancePerCapitaBasis)/100;
     if(ret>140000)ret=140000;
     return Math.floor(ret);
   }
+
+  //介護分保険料
 
   return {
     calcSalaryIncome:calcSalaryIncome,
@@ -186,12 +237,12 @@ function updateGraph(parentTaxableIncome, under22, under20, len){
       tax.yourStudentDeduction = Tax.isStudentDeduction(tax.yourIncome, tax.yourOtherIncome);
 
       tax.yourDeduction = Tax.calcDeduction(tax.yourIncome, tax.yourStudentDeduction);
-      tax.yourTaxableIncome = Tax.calcTaxableIncome(tax.yourIncome, tax.yourDeduction);
+      tax.yourTaxableIncome = Math.max(tax.yourIncome - tax.yourDeduction, 0);
       tax.yourIncomeTaxRate = Tax.calcIncomeTax(tax.yourTaxableIncome).rate;
       tax.yourIncomeTax = Tax.calcIncomeTax(tax.yourTaxableIncome).amount;
 
       tax.yourResidentTaxableDeduction = tax.yourStudentDeduction ? 590000:330000;
-      tax.yourResidentTaxableIncome = Tax.calcTaxableIncome(tax.yourIncome, tax.yourResidentTaxableDeduction);
+      tax.yourResidentTaxableIncome = Math.max(tax.yourIncome - tax.yourResidentTaxableDeduction, 0);
       tax.yourResidentTaxableNeed = ((tax.under20&&tax.yourIncome<=1250000) || tax.yourIncome <= 350000)? false:true;
       tax.yourInhabitantTaxOnPerCapitaBasis = tax.yourResidentTaxableNeed? 4000:0;
       tax.yourInhabitantTax = tax.yourInhabitantTaxOnPerCapitaBasis + (tax.yourResidentTaxableNeed? (tax.yourResidentTaxableIncome*0.1):0);
@@ -294,14 +345,14 @@ function TaxCtrl($scope) {
 
   function updateIncomeTax(income, studentDeduction){
     $scope.tax.yourDeduction = Tax.calcDeduction($scope.tax.yourIncome, $scope.tax.yourStudentDeduction);
-    $scope.tax.yourTaxableIncome = Tax.calcTaxableIncome($scope.tax.yourIncome, $scope.tax.yourDeduction);
+    $scope.tax.yourTaxableIncome = Math.max($scope.tax.yourIncome - $scope.tax.yourDeduction, 0);
     $scope.tax.yourIncomeTaxRate = Tax.calcIncomeTax($scope.tax.yourTaxableIncome).rate;
     $scope.tax.yourIncomeTax = Tax.calcIncomeTax($scope.tax.yourTaxableIncome).amount;
   }
 
   function updateInhabitantTax(income, studentDeduction, under20){
     $scope.tax.yourResidentTaxableDeduction = $scope.tax.yourStudentDeduction ? 590000:330000;
-    $scope.tax.yourResidentTaxableIncome = Tax.calcTaxableIncome($scope.tax.yourIncome, $scope.tax.yourResidentTaxableDeduction);
+    $scope.tax.yourResidentTaxableIncome = Math.max($scope.tax.yourIncome - $scope.tax.yourResidentTaxableDeduction, 0);
     $scope.tax.yourResidentTaxableNeed = ($scope.tax.under20 && $scope.tax.yourIncome<=1250000 || $scope.tax.yourIncome <= 350000)? false:true;
     $scope.tax.yourInhabitantTaxOnPerCapitaBasis = $scope.tax.yourResidentTaxableNeed? 4000:0;
     $scope.tax.yourInhabitantTax = $scope.tax.yourInhabitantTaxOnPerCapitaBasis + ($scope.tax.yourResidentTaxableNeed? ($scope.tax.yourResidentTaxableIncome*0.1):0);
