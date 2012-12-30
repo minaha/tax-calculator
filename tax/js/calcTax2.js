@@ -350,3 +350,4 @@ function TaxCtrl($scope) {
 }
 
 updateGraph();
+
