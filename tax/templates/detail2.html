@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+
+{% block title%}税額計算機β{% endblock %}
+
+
+{% block style_block %}<!-- page-specific CSS -->{% endblock %}
+
+
+{% block head_script %}<!-- defer-incapable JS block -->{% endblock %}
+
+
+{% block content %}
+{% raw %}
+<div ng-controller="TaxCtrl">
+  <div class="row">
+    <div class="span3">
+      <form  class="form-horizontal">
+        <fieldset>
+          <legend>入力欄</legend>
+          <p>以下の僅か4つの項目を入力してください。</p>
+          
+          <label><abbr title="平成24年1/1～12/31の収入で税引前の金額">給与収入</abbr></label>
+          <input class="input-medium" type="number" ng-model="Status.fullSalaryIncome" placeholder="あなたの給与収入(円)" step="10000" min="0">
+          <!--
+          <label><abbr title="給与所得控除後の金額. 自動計算される. 修正用">給与所得(分かれば)</abbr></label>
+          <input type="number" ng-model="tax.yourSalaryIncome" placeholder="あなたの給与所得(円)" step="10000">
+          <label>その他/雑所得（FXなど）</label>
+          <input type="number" ng-model="tax.yourOtherIncome" placeholder="その他/雑所得(円)" step="10000">
+          -->
+          <label><abbr title="扶養控除や住民税に関係 (誕生日1/2付近は計算誤差有)">1/1の時点での年齢</abbr></label>
+          <input class="input-mini" type="number" ng-model="Status.age" placeholder="年齢" min="0">
+
+          <label><abbr title="親の増税額に関係。共働きの場合は収入が多い方の年収">親のおおよその年収</abbr></label>
+          <select class="input-medium" ng-model="ParentStatus.incomeTaxRate">
+            <option value="40">2000万以上</option>
+            <option value="30">1150～2000万</option>
+            <option value="23">1000万前後</option>
+            <option value="20">500万～950万</option>
+            <option value="10">360～500万</option>
+            <option value="5"> ～360万</option>
+            <option value="0"> ～100万</option>
+          </select>
+          
+          <label><abbr title="主に保険料に影響。一部地域のみの対応です...">住んでいる地域</abbr></label>
+          <select class="input-medium" ng-model="Status.area">
+            <option ng-repeat="areaData in Status.Region.areaData" value="{{$index}}">{{areaData[0]}}{{areaData[1]}}</option>
+          </select>
+          
+
+          <!--
+          <span class="help-block">分かれば入力してください.</span>
+          <label>親の家族手当</label>
+          <input type="number" ng-model="tax.yourParentAllowance" placeholder="親の家族手当(円)" step="10000" value="50000">
+          <label class="checkbox"><input type="checkbox">103万を超えると家族の支給が止まる</label>
+          <label class="checkbox"><input type="checkbox"><abbr title="親が自営業の場合など">国民健康保険に加入している</abbr></label>
+          -->
+        </fieldset>
+      </form>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><abbr title="税引前の金額">給与収入</abbr></td>
+            <td>{{Status.fullSalaryIncome}}</td>
+          </tr>
+          <tr>
+            <td><abbr title="給与所得控除後の金額">給与所得</abbr></td>
+            <td>{{Status.salaryIncome}}</td>
+          </tr>
+          <tr>
+            <td>雑収入</td>
+            <td><abbr title="まだ入力に対応してません^^;">{{Status.otherIncome}}</abbr></td>
+          </tr>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{Status.income}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="span3">
+      <h3>各種情報</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>勤労学生控除</td>
+            <td><abbr title="特定の学校の学生で、合計所得金額65万円以下かつ勤労に基づく所得以外の所得が10万円以下なら利用可">{{Status.Deduction.studentDeduction.status}}</abbr></td>
+          </tr>
+          <tr>
+            <td><abbr title="103万を超えると親が扶養親族控除を使えなくなる">親が使える控除</abbr></td>
+            <td><abbr title="12/31で18-22歳なら親の特定扶養親族。控除の額が大きい">特定扶養親族 {{ParentStatus.isEspecialDependent}}</abbr></td>
+          </tr>
+          <tr>
+            <td>親の所得税税率</td>
+            <td><abbr title="親の収入をもとに算出（およその値）">{{ParentStatus.incomeTaxRate}}%</abbr></td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>所得税 課税額</td>
+            <td>{{IncomeTax.tax}}</td>
+          </tr>
+          <tr>
+            <td>住民税 課税額</td>
+            <td><abbr title="翌年1/1の時点で未成年なら住民税は非課税です">{{ResidentTax.totalTax}}</abbr></td>
+          </tr>
+          <tr>
+            <td>国民健康保険料</td>
+            <td><abbr title="年収が130万以上になると親の扶養家族を外れます">{{Insurance.totalTax}}</abbr></td>
+          </tr>
+          <tr>
+            <td><abbr title="103万を超えると親が扶養親族控除を使えなくなる">(親)増課税額</abbr></td>
+            <td><abbr title="所得税控除の減額分{{ParentStatus.incomeTaxDeduction}}*{{ParentStatus.incomeTaxRate/100}} + 住民税控除の減額分{{ParentStatus.residentTaxDeduction}}*0.1 が追加税">{{ParentStatus.incrementTax}}</abbr></td>
+          </tr>
+          <tr>
+            <td>税金/保険料合計額</td>
+            <td>{{IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax + ParentStatus.incrementTax}}</td>
+          </tr>
+          <tr>
+            <td>実質手取</td>
+            <td>{{Status.fullSalaryIncome -(IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax + ParentStatus.incrementTax)}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="span6">
+      <h3>グラフ</h3>
+      <div id="chart_div"></div>
+      <p><a class="btn" href="#detail">詳細 &raquo;</a></p>
+    </div>
+  </div>
+
+  <div class="row"> 
+    <h2 id="detail">詳細</h2>
+    <div class="span3">
+      <h3>所得税</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{Status.income}}</td>
+          </tr>
+          <tr>
+            <td>控除の金額</td>
+            <td><abbr title="基礎控除38万+勤労学生控除27万">{{IncomeTax.deduction}}</abbr></td>
+          </tr>
+          <tr>
+            <td>課税される所得金額</td>
+            <td>{{IncomeTax.taxableIncome}}</td>
+          </tr>
+          <tr>
+            <td>所得税 税率</td>
+            <td>{{IncomeTax.taxRate}}%</td>
+          </tr>
+          <tr>
+            <td>所得税 課税額</td>
+            <td>{{IncomeTax.tax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1410.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+    <div class="span3">
+      <h3>住民税</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>合計所得金額</td>
+            <td>{{Status.income}}</td>
+          </tr>
+          <tr>
+            <td>課税対象</td>
+            <td><abbr title="所得割・均等割(合計所得金額が35万以下,または未成年で125万以下なら課税対象外)">{{ResidentTax.getLevel()}}</abbr></td>
+          </tr>
+          <tr>
+            <td>控除の金額</td>
+            <td><abbr title="基礎控除33万+勤労学生控除26万">{{ResidentTax.deduction}}</abbr></td>
+          </tr>
+          <tr>
+            <td>課税される所得金額</td>
+            <td>{{ResidentTax.taxableIncome}}</td>
+          </tr>
+          <tr>
+            <td><abbr title="3000円+1000円 (+{{Status.Region.getResidentCustomTax()[1]}} {{Status.Region.getResidentCustomTax()[0]}}円)">均等割 課税額</abbr></td>
+            <td>{{ResidentTax.flatTax}}</td>
+          </tr>
+          <tr>
+            <td>所得割 課税額</td>
+            <td><abbr title="市町村民税(23区は特別区民税)6% + 都道府県民税4%">{{ResidentTax.incomeTax}}</abbr></td>
+          </tr>
+          <tr>
+            <td>住民税 課税額</td>
+            <td><abbr title="均等割+所得割">{{ResidentTax.totalTax}}</abbr></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>翌年に課税されます。</p>
+      <p><a class="btn" href="http://www.city.shinjuku.lg.jp/hoken/file04_03_00001.html" target="_blank">詳細 &raquo;</a></p>
+    </div>
+    <div class="span3">
+      <h3>保険料</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>課税対象</td>
+            <td>{{Insurance.need}}</td>
+          </tr>
+          <tr>
+            <td>賦課のもととなる所得金額</td>
+            <td>{{Insurance.taxableIncome}}</td>
+          </tr>
+          <tr>
+            <td>医療分保険料</td>
+            <td>{{Insurance.medicalInsurance}}</td>
+          </tr>
+          <tr>
+            <td>後期高齢者支援金等賦課額</td>
+            <td>{{Insurance.supportInsurance}}</td>
+          </tr>
+          <tr>
+            <td>国民健康保険料</td>
+            <td>{{Insurance.totalTax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>保険料は地域や年度によって異なります。前年の税率をもとに計算しています。</p>
+    </div>
+    <div class="span3">
+      <h3>親への課税額</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>金額(円)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>(親)所得税税率</td>
+            <td>{{ParentStatus.incomeTaxRate}}%</td>
+          </tr>
+          <tr>
+            <td>(親)所得税控除の減少額</td>
+            <td>{{ParentStatus.incomeTaxDeduction}}</td>
+          </tr>
+          <tr>
+            <td>(親)住民税控除の減少額</td>
+            <td>{{ParentStatus.residentTaxDeduction}}</td>
+          </tr>
+          <tr>
+            <td>(親)増課税額</td>
+            <td>{{ParentStatus.incrementTax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a class="btn" href="http://www.nta.go.jp/taxanswer/shotoku/1180.htm" target="_blank">詳細 &raquo;</a></p>
+    </div>
+  </div>
+</div>
+{% endraw %}
+{% endblock %}
+
+
+{% block footer %}<!-- footer -->{% endblock %}
+
+
+{% block tail_script %}<!-- defer-capable JS block -->
+<script src="js/vendor/underscore-min.js"></script>
+<script src="js/calcTax3.js"></script>
+<script src="js/vendor/angular.min.js"></script>
+{% endblock %}
+
