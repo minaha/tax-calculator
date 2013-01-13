@@ -8,6 +8,7 @@
       otherIncome:0,
       income:0,
       age:21,
+      isStudent:true,
       area:"0",
       headCount:0
     };
@@ -42,7 +43,6 @@
           return a-2450000;
         }
       }
-
       status.salaryIncome = f(status.fullSalaryIncome);
     }
 
@@ -73,7 +73,7 @@
       var sum = [];
 
       function studentCheck(){
-        if(status.income<=650000 && status.otherIncome<=100000){
+        if(status.isStudent && status.income<=650000 && status.otherIncome<=100000){
           return true;
         }
         return false;
