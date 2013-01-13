@@ -446,6 +446,17 @@
     return parentStatus;
   }
 
+  function Pension(Status){
+    var pension = {
+      national:0,//国民年金
+      //national_fund:0,//国民年金基金
+      employee:0,//厚生年金
+      //employee_fond:0
+    };
+
+    return pention;
+  }
+
   //Angular.js Controller
   window.TaxCtrl = function ($scope) {
     $scope.Status = Status();
