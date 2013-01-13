@@ -1,29 +1,20 @@
 {% extends "base.html" %}
 
 
-{% block title%}{% endblock %}
+{% block title%}税額計算機β{% endblock %}
 
 
-{% block style_block %}<!-- page-specific CSS -->
-  <style type="text/css">
-    #main {
-      padding-top: 60px;
-      padding-bottom: 40px;
-    }
-  </style>
-{% endblock %}
+{% block style_block %}<!-- page-specific CSS -->{% endblock %}
 
 
 {% block head_script %}<!-- defer-incapable JS block -->{% endblock %}
 
 
 {% block content %}
-<div class="container">
   <!-- Main hero unit for a primary marketing message or call to action -->
   <div class="hero-unit">
     <h1>税額計算機β <small>for 大学生</small></h1>
     <p>このページは、学生がアルバイトで稼いだ時、学生とその親にどう課税されるのかシミュレーションするために作成されました。</p>
-    </p>
     <p><a class="btn btn-primary btn-large" href="detail.php">実際に計算してみる &raquo;</a></p>
   </div>
 
@@ -60,7 +51,6 @@
       </dl>
     </div>
   </div>
-</div>
 {% endblock %}
 
 
