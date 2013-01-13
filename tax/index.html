@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>税金計算表</title>
+  <title>税額計算機α</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
   <link rel="stylesheet" href="css/base.css">
   <style type="text/css">
-    body {
+    #main {
       padding-top: 60px;
       padding-bottom: 40px;
     }
@@ -31,7 +31,7 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </a>
-    <a class="brand" href="#">税額計算表</a>
+    <a class="brand" href="index.html">税額計算機α</a>
     <div class="nav-collapse collapse">
       <ul class="nav">
         <li class="active"><a href="index.html">Home</a></li>
@@ -41,11 +41,11 @@
     </div><!--/.nav-collapse -->
   </div></div></div>
 
-  <div class="container" ng-controller="TaxCtrl">
+  <div id="main" class="container" ng-controller="TaxCtrl">
 
   <!-- Main hero unit for a primary marketing message or call to action -->
   <div class="hero-unit">
-    <h1>大学生 税金シミュレータ</h1>
+    <h1>大学生 税額計算機α</h1>
     <p>このページは、大学生がアルバイトで100万以上を稼いだ時、学生とその親にどう課税されるのかシミュレーションするために作成されました。
         結果が合っているという保証はありません。おおよその予想を立てるのに利用してください。</p>
     </p>
@@ -91,6 +91,9 @@
 
   <footer>
   <p>&copy; minaha, bungoume 2013</p>
+  <a href="https://twitter.com/share" class="twitter-share-button" data-lang="ja">ツイート</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  <a href="http://b.hatena.ne.jp/entry/http://umeice.com/tax/" class="hatena-bookmark-button" data-hatena-bookmark-title="税額計算機α" data-hatena-bookmark-layout="standard-balloon" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
   </footer>
 
   </div> <!-- /container -->
