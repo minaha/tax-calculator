@@ -1,17 +1,10 @@
 {% extends "base.html" %}
 
 
-{% block title%}{% endblock %}
+{% block title%}税額計算機β{% endblock %}
 
 
-{% block style_block %}<!-- page-specific CSS -->
-  <style type="text/css">
-    #main {
-      padding-top: 60px;
-      padding-bottom: 40px;
-    }
-  </style>
-{% endblock %}
+{% block style_block %}<!-- page-specific CSS -->{% endblock %}
 
 
 {% block head_script %}<!-- defer-incapable JS block -->{% endblock %}
@@ -19,7 +12,7 @@
 
 {% block content %}
 {% raw %}
-<div class="container" ng-controller="TaxCtrl">
+<div ng-controller="TaxCtrl">
   <div class="row">
     <div class="span3">
       <form  class="form-horizontal">
@@ -311,5 +304,9 @@
 {% block footer %}<!-- footer -->{% endblock %}
 
 
-{% block tail_script %}<!-- defer-capable JS block -->{% endblock %}
+{% block tail_script %}<!-- defer-capable JS block -->
+<script src="js/vendor/underscore-min.js"></script>
+<script src="js/calcTax3.js"></script>
+<script src="js/vendor/angular.min.js"></script>
+{% endblock %}
 
