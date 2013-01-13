@@ -10,7 +10,12 @@
       age:21,
       isStudent:true,
       area:"0",
-      headCount:0
+      headCount:0,
+
+      //function
+      Age: {},
+      Deduction: {},
+      Region: {}
     };
 
     function calcSalaryIncome(fullSalaryIncome){
