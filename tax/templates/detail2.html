@@ -47,14 +47,6 @@
             <option ng-repeat="areaData in Status.Region.areaData" value="{{$index}}">{{areaData[0]}}{{areaData[1]}}</option>
           </select>
           
-
-          <!--
-          <span class="help-block">分かれば入力してください.</span>
-          <label>親の家族手当</label>
-          <input type="number" ng-model="tax.yourParentAllowance" placeholder="親の家族手当(円)" step="10000" value="50000">
-          <label class="checkbox"><input type="checkbox">103万を超えると家族の支給が止まる</label>
-          <label class="checkbox"><input type="checkbox"><abbr title="親が自営業の場合など">国民健康保険に加入している</abbr></label>
-          -->
         </fieldset>
       </form>
       <table class="table table-striped">
@@ -91,28 +83,6 @@
         <thead>
           <tr>
             <th>名称</th>
-            <th>内容</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>勤労学生控除</td>
-            <td><abbr title="特定の学校の学生で、合計所得金額65万円以下かつ勤労に基づく所得以外の所得が10万円以下なら利用可">{{Status.Deduction.studentDeduction.status}}</abbr></td>
-          </tr>
-          <tr>
-            <td><abbr title="103万を超えると親が扶養親族控除を使えなくなる">親が使える控除</abbr></td>
-            <td><abbr title="12/31で18-22歳なら親の特定扶養親族。控除の額が大きい">特定扶養親族 {{ParentStatus.isEspecialDependent}}</abbr></td>
-          </tr>
-          <tr>
-            <td>親の所得税税率</td>
-            <td><abbr title="親の収入をもとに算出（およその値）">{{ParentStatus.incomeTaxRate}}%</abbr></td>
-          </tr>
-        </tbody>
-      </table>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>名称</th>
             <th>金額</th>
           </tr>
         </thead>
@@ -126,20 +96,20 @@
             <td><abbr title="翌年1/1の時点で未成年なら住民税は非課税です">{{ResidentTax.totalTax}}</abbr></td>
           </tr>
           <tr>
-            <td>国民健康保険料</td>
-            <td><abbr title="年収が130万以上になると親の扶養家族を外れます">{{Insurance.totalTax}}</abbr></td>
+            <td>健康保険料</td>
+            <td><abbr title="「健康保険」「船員保険」「共済組合」「国民健康保険」「後期高齢者（長寿）医療制度」">{{Insurance.totalTax}}</abbr></td>
           </tr>
           <tr>
-            <td><abbr title="103万を超えると親が扶養親族控除を使えなくなる">(親)増課税額</abbr></td>
-            <td><abbr title="所得税控除の減額分{{ParentStatus.incomeTaxDeduction}}*{{ParentStatus.incomeTaxRate/100}} + 住民税控除の減額分{{ParentStatus.residentTaxDeduction}}*0.1 が追加税">{{ParentStatus.incrementTax}}</abbr></td>
+            <td>年金保険料</td>
+            <td><abbr title="国民年金保険料+厚生年金保険料">{{Insurance.totalTax}}</abbr></td>
           </tr>
           <tr>
             <td>税金/保険料合計額</td>
-            <td>{{IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax + ParentStatus.incrementTax}}</td>
+            <td>{{IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax}}</td>
           </tr>
           <tr>
             <td>実質手取</td>
-            <td>{{Status.fullSalaryIncome -(IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax + ParentStatus.incrementTax)}}</td>
+            <td>{{Status.fullSalaryIncome -(IncomeTax.tax + ResidentTax.totalTax + Insurance.totalTax)}}</td>
           </tr>
         </tbody>
       </table>
