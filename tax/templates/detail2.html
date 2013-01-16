@@ -31,17 +31,6 @@
           <label><abbr title="扶養控除や住民税に関係 (誕生日1/2付近は計算誤差有)">1/1の時点での年齢</abbr></label>
           <input class="input-mini" type="number" ng-model="Status.age" placeholder="年齢" min="0">
 
-          <label><abbr title="親の増税額に関係。共働きの場合は収入が多い方の年収">親のおおよその年収</abbr></label>
-          <select class="input-medium" ng-model="ParentStatus.incomeTaxRate">
-            <option value="40">2000万以上</option>
-            <option value="30">1150～2000万</option>
-            <option value="23">1000万前後</option>
-            <option value="20">500万～950万</option>
-            <option value="10">360～500万</option>
-            <option value="5"> ～360万</option>
-            <option value="0"> ～100万</option>
-          </select>
-          
           <label><abbr title="主に保険料に影響。一部地域のみの対応です...">住んでいる地域</abbr></label>
           <select class="input-medium" ng-model="Status.area">
             <option ng-repeat="areaData in Status.Region.areaData" value="{{$index}}">{{areaData[0]}}{{areaData[1]}}</option>
