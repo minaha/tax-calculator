@@ -3,6 +3,7 @@
 
   function floorPrecise(number, significance){
     significance = significance || 1;
+    number = Math.max(number, 0);
     return Math.floor(number/significance) * significance;
   }
 
@@ -189,7 +190,7 @@
     };
 
     function calcTaxableIncome(income, deduction){
-      incomeTax.taxableIncome = Math.max(floorPrecise(Status.income - incomeTax.deduction,1000), 0);;
+      incomeTax.taxableIncome = floorPrecise(Status.income - incomeTax.deduction,1000);
     }
 
     function calcIncomeTax(taxableIncome){
@@ -291,7 +292,7 @@
     }
 
     function calcTaxableIncome(income, deduction){
-      residentTax.taxableIncome = Math.max(floorPrecise(Status.income - residentTax.deduction,1000), 0);
+      residentTax.taxableIncome = floorPrecise(Status.income - residentTax.deduction, 1000);
     }
 
     function calcFlatTax(area, needLevel){
@@ -305,6 +306,8 @@
     function calcIncomeTax(taxableIncome, needLevel){
       //調整控除の計算
       var diffDeduction = Status.Deduction.getDiff();
+      var taxableIncome = residentTax.taxableIncome;
+
       var fittingDiduction = 0;
       if(taxableIncome <= 2000000){
         fittingDiduction = Math.min(diffDeduction, taxableIncome) * 5/100;
@@ -317,7 +320,8 @@
       if(residentTax.needLevel != ALL){
         residentTax.incomeTax = 0;
       } else {
-        residentTax.incomeTax = floorPrecise(residentTax.taxableIncome * 10/100 - fittingDiduction,100);
+        var incomeTax = floorPrecise(taxableIncome * 6/100,100) + floorPrecise(taxableIncome * 4/100,100);
+        residentTax.incomeTax = floorPrecise(incomeTax - fittingDiduction,100);
       }
     }
 
@@ -365,7 +369,7 @@
 
     function calcTaxableIncome(income, area){
       var areaOptions = Status.Region.getInsurance();
-      insurance.taxableIncome = Math.max(Status.income - 330000 - areaOptions[0], 0);
+      insurance.taxableIncome = floorPrecise(Status.income - 330000 - areaOptions[0], 1000);
     }
 
     function calcReduction(income, headCount){
