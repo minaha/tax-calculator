@@ -1,6 +1,11 @@
 (function(){
   "use strict";
 
+  function floorPrecise(number, significance){
+    significance = significance || 1;
+    return Math.floor(number/significance) * significance;
+  }
+
   function Status() {
     var status = {
       fullSalaryIncome:1000000,
@@ -184,7 +189,7 @@
     };
 
     function calcTaxableIncome(income, deduction){
-      incomeTax.taxableIncome = Math.max(Status.income - incomeTax.deduction, 0);
+      incomeTax.taxableIncome = Math.max(floorPrecise(Status.income - incomeTax.deduction,1000), 0);;
     }
 
     function calcIncomeTax(taxableIncome){
@@ -210,7 +215,7 @@
 
       var b = f(incomeTax.taxableIncome);
       incomeTax.taxRate = b.rate;
-      incomeTax.tax     = Math.floor(b.amount);//todo:floorでいいの？
+      incomeTax.tax     = floorPrecise(b.amount,100);
     }
 
 
@@ -304,7 +309,7 @@
 
       //residentTax.tempTaxableIncome = tempTaxableIncome;
       //residentTax.tempDeduction     = tempDeduction;
-      residentTax.taxableIncome = Math.max(tempTaxableIncome - tempDeduction, 0);
+      residentTax.taxableIncome = Math.max(floorPrecise(tempTaxableIncome - tempDeduction,1000), 0);
     }
 
     function calcFlatTax(area, needLevel){
@@ -319,7 +324,7 @@
       if(residentTax.needLevel != ALL){
         residentTax.incomeTax = 0;
       } else {
-        residentTax.incomeTax = Math.floor(residentTax.taxableIncome * 10/100);
+        residentTax.incomeTax = floorPrecise(residentTax.taxableIncome * 10/100,100);
       }
     }
 
