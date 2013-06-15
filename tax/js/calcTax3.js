@@ -388,9 +388,9 @@
         insurance.medicalInsurance = Math.min(insurance.taxableIncome * opt[1][0]/100 + (opt[1][2] + opt[1][3])*(100-insurance.reduction)/100 , opt[1][4]);
         insurance.supportInsurance = Math.min(insurance.taxableIncome * opt[2][0]/100 + (opt[2][2] + opt[2][3])*(100-insurance.reduction)/100 , opt[2][4]);
         insurance.caringInsurance  = 0;//Math.min(insurance.taxableIncome * opt[3][0]/100 + (opt[3][2] + opt[3][3])*(100-insurance.reduction)/100 , opt[3][4]);
-        insurance.medicalInsurance = Math.floor(insurance.medicalInsurance);//todo:floor?
-        insurance.supportInsurance = Math.floor(insurance.supportInsurance);//todo:floor?
-        insurance.caringInsurance  = Math.floor(insurance.caringInsurance);//todo:floor?
+        insurance.medicalInsurance = floorPrecise(insurance.medicalInsurance, 100);
+        insurance.supportInsurance = floorPrecise(insurance.supportInsurance, 100);
+        insurance.caringInsurance  = floorPrecise(insurance.caringInsurance, 100);
       }else{
         insurance.medicalInsurance = insurance.supportInsurance = insurance.caringInsurance = 0;
       }
@@ -433,8 +433,8 @@
     }
 
     function calcIncrementTax(){
-      var a = floorPrecise(parentStatus.incomeTaxDeduction * parentStatus.incomeTaxRate/100,100);
-      var b = floorPrecise(parentStatus.residentTaxDeduction * 10/100,100);
+      var a = parentStatus.incomeTaxDeduction * parentStatus.incomeTaxRate/100;
+      var b = parentStatus.residentTaxDeduction * 10/100;
       parentStatus.incrementTax = (parentStatus.need && parentStatus.incomeTaxRate!=0)?(a + b):0;
     }
 
