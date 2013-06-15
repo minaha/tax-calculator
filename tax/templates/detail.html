@@ -220,11 +220,11 @@
           </tr>
           <tr>
             <td>所得割 課税額</td>
-            <td><abbr title="市町村民税(23区は特別区民税)6% + 都道府県民税4%">{{ResidentTax.incomeTax}}</abbr></td>
+            <td><abbr title="市町村民税(23区は特別区民税)6% + 都道府県民税4% - 調整控除{{ResidentTax.fittingDiduction}}円">{{ResidentTax.incomeTax}}</abbr></td>
           </tr>
           <tr>
             <td>住民税 課税額</td>
-            <td><abbr title="均等割+(所得割-調整控除{{ResidentTax.fittingDiduction}}円)">{{ResidentTax.totalTax}}</abbr></td>
+            <td><abbr title="均等割+所得割">{{ResidentTax.totalTax}}</abbr></td>
           </tr>
         </tbody>
       </table>
