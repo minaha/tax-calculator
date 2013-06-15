@@ -234,8 +234,7 @@
     var residentTax = {
       needLevel:0,
       deduction:0,
-      //tempTaxableIncome:0,
-      //tempDeduction:0,
+      fittingDiduction:0,
       taxableIncome:0,
       flatTax:0,
       incomeTax:0,
@@ -315,7 +314,9 @@
         fittingDiduction = (diffDeduction - (taxableIncome-2000000)) * 5/100;
         fittingDiduction = Math.max(fittingDiduction, 2500);
       }
-      //residentTax.fittingDiduction     = fittingDiduction;
+      residentTax.fittingDiduction = fittingDiduction;
+
+
 
       if(residentTax.needLevel != ALL){
         residentTax.incomeTax = 0;
