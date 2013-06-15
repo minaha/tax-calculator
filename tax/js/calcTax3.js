@@ -291,25 +291,7 @@
     }
 
     function calcTaxableIncome(income, deduction){
-      var tempTaxableIncome = Math.max(Status.income - residentTax.deduction, 0);
-
-
-      //調整控除の計算
-      var diffDeduction = Status.Deduction.getDiff();
-      var tempDeduction = 0;
-      if(tempTaxableIncome <= 2000000){
-        tempDeduction = Math.min(diffDeduction, tempTaxableIncome) * 5/100;
-      }else{
-        tempDeduction = (diffDeduction - (tempTaxableIncome-2000000)) * 5/100;
-        tempDeduction = Math.max(tempDeduction, 2500);
-      }
-
-      //todo: floorでいいの?
-      //tempDeduction = Math.floor(tempDeduction);
-
-      //residentTax.tempTaxableIncome = tempTaxableIncome;
-      //residentTax.tempDeduction     = tempDeduction;
-      residentTax.taxableIncome = Math.max(floorPrecise(tempTaxableIncome - tempDeduction,1000), 0);
+      residentTax.taxableIncome = Math.max(floorPrecise(Status.income - residentTax.deduction,1000), 0);
     }
 
     function calcFlatTax(area, needLevel){
@@ -321,10 +303,21 @@
     }
 
     function calcIncomeTax(taxableIncome, needLevel){
+      //調整控除の計算
+      var diffDeduction = Status.Deduction.getDiff();
+      var fittingDiduction = 0;
+      if(taxableIncome <= 2000000){
+        fittingDiduction = Math.min(diffDeduction, taxableIncome) * 5/100;
+      }else{
+        fittingDiduction = (diffDeduction - (taxableIncome-2000000)) * 5/100;
+        fittingDiduction = Math.max(fittingDiduction, 2500);
+      }
+      //residentTax.fittingDiduction     = fittingDiduction;
+
       if(residentTax.needLevel != ALL){
         residentTax.incomeTax = 0;
       } else {
-        residentTax.incomeTax = floorPrecise(residentTax.taxableIncome * 10/100,100);
+        residentTax.incomeTax = floorPrecise(residentTax.taxableIncome * 10/100 - fittingDiduction,100);
       }
     }
 
