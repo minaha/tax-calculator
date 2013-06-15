@@ -433,8 +433,8 @@
     }
 
     function calcIncrementTax(){
-      var a = parentStatus.incomeTaxDeduction * parentStatus.incomeTaxRate/100;
-      var b = parentStatus.residentTaxDeduction * 10/100;
+      var a = floorPrecise(parentStatus.incomeTaxDeduction * parentStatus.incomeTaxRate/100,100);
+      var b = floorPrecise(parentStatus.residentTaxDeduction * 10/100,100);
       parentStatus.incrementTax = (parentStatus.need && parentStatus.incomeTaxRate!=0)?(a + b):0;
     }
 
